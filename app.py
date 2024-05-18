@@ -1,7 +1,9 @@
 # Import necessary libraries
 # import databutton as db
 import streamlit as st
-import openai
+from openai import OpenAI
+
+client = OpenAI(api_key=openai_api_key)
 from brain import get_index_for_pdf
 from langchain.chains import RetrievalQA
 from langchain.chat_models import ChatOpenAI
@@ -16,7 +18,6 @@ st.title("RAG enhanced Chatbot")
 
 openai_api_key = st.text_input('Enter your OpenAI API key')
 os.environ["OPENAI_API_KEY"] =openai_api_key
-openai.api_key =openai_api_key
 
 
 # Cached function to create a vectordb for the provided PDF files
@@ -43,15 +44,15 @@ if pdf_files:
 #     You are a helpful Assistant who answers to users questions based on multiple contexts given to you.
 
 #     Keep your answer short and to the point.
-    
+
 #     The evidence are the context of the pdf extract with metadata. 
-    
+
 #     Carefully focus on the metadata specially 'filename' and 'page' whenever answering.
-    
+
 #     Make sure to add filename and page number at the end of sentence you are citing to.
-        
+
 #     Reply "Not applicable" if text is irrelevant.
-     
+
 #     The PDF content is:
 #     {pdf_extract}
 # """
@@ -117,9 +118,7 @@ if question:
     # Call ChatGPT with streaming and display the response as it comes
     response = []
     result = ""
-    for chunk in openai.ChatCompletion.create(
-        model="gpt-3.5-turbo", messages=prompt, stream=True
-    ):
+    for chunk in client.chat.completions.create(model="gpt-3.5-turbo", messages=prompt, stream=True):
         text = chunk.choices[0].get("delta", {}).get("content")
         if text is not None:
             response.append(text)
