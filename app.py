@@ -39,22 +39,40 @@ if pdf_files:
     st.session_state["vectordb"] = create_vectordb(pdf_files, pdf_file_names)
 
 # Define the template for the chatbot prompt
-prompt_template = """
-    You are a helpful Assistant who answers to users questions based on multiple contexts given to you.
+# prompt_template = """
+#     You are a helpful Assistant who answers to users questions based on multiple contexts given to you.
 
-    Keep your answer short and to the point.
+#     Keep your answer short and to the point.
     
-    The evidence are the context of the pdf extract with metadata. 
+#     The evidence are the context of the pdf extract with metadata. 
     
-    Carefully focus on the metadata specially 'filename' and 'page' whenever answering.
+#     Carefully focus on the metadata specially 'filename' and 'page' whenever answering.
     
-    Make sure to add filename and page number at the end of sentence you are citing to.
+#     Make sure to add filename and page number at the end of sentence you are citing to.
         
-    Reply "Not applicable" if text is irrelevant.
+#     Reply "Not applicable" if text is irrelevant.
      
-    The PDF content is:
+#     The PDF content is:
+#     {pdf_extract}
+# """
+
+prompt_template = """
+    Vous êtes un assistant qui répond aux questions des utilisateurs sur la base de plusieurs contextes qui vous sont donnés.
+
+    Votre réponse doit être courte et pertinente.
+    
+    Les preuves sont le contexte de l'extrait pdf avec les métadonnées. 
+    
+    Concentrez-vous soigneusement sur les métadonnées, en particulier le « nom de fichier » et la « page », lorsque vous répondez.
+    
+    Veillez à ajouter le nom du fichier et le numéro de la page à la fin de la phrase que vous citez.
+        
+    Répondez « Sans objet » si le texte n'est pas pertinent.
+     
+    Le contenu du PDF est le suivant :
     {pdf_extract}
 """
+
 
 # Get the current prompt from the session state or set a default value
 prompt = st.session_state.get("prompt", [{"role": "system", "content": "none"}])
