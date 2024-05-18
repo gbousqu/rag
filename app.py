@@ -14,7 +14,7 @@ st.title("RAG enhanced Chatbot")
 # os.environ["OPENAI_API_KEY"] = db.secrets.get("OPENAI_API_KEY")
 # openai.api_key = db.secrets.get("OPENAI_API_KEY")
 
-openai_api_key = "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"
+openai_api_key = st.text_input('Enter your OpenAI API key')
 os.environ["OPENAI_API_KEY"] =openai_api_key
 openai.api_key =openai_api_key
 
