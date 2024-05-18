@@ -20,7 +20,7 @@ openai.api_key =openai_api_key
 
 
 # Cached function to create a vectordb for the provided PDF files
-@st.cache_data
+@st.cache_resource 
 def create_vectordb(files, filenames):
     # Show a spinner while creating the vectordb
     with st.spinner("Vector database"):
