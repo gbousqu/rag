@@ -3,7 +3,7 @@
 import streamlit as st
 from openai import OpenAI
 
-client = OpenAI(api_key=openai_api_key)
+
 from brain import get_index_for_pdf
 from langchain.chains import RetrievalQA
 from langchain.chat_models import ChatOpenAI
@@ -17,6 +17,7 @@ st.title("RAG enhanced Chatbot")
 # openai.api_key = db.secrets.get("OPENAI_API_KEY")
 
 openai_api_key = st.text_input('Enter your OpenAI API key')
+client = OpenAI(api_key=openai_api_key)
 os.environ["OPENAI_API_KEY"] =openai_api_key
 
 
