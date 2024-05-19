@@ -2,7 +2,7 @@
 # import databutton as db
 import streamlit as st
 # new
-from openai import OpenAI
+import openai
 
 
 from brain import get_index_for_pdf
@@ -16,10 +16,8 @@ st.title("RAG enhanced Chatbot")
 
 openai_api_key = st.text_input('Enter your OpenAI API key')
 os.environ["OPENAI_API_KEY"] =openai_api_key
-# openai.api_key =openai_api_key
-client = OpenAI(
-  api_key=os.environ['OPENAI_API_KEY'],  # this is also the default, it can be omitted
-)
+openai.api_key = os.getenv('OPENAI_API_KEY')
+
 
 
 # Cached function to create a vectordb for the provided PDF files
