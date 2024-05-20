@@ -5,9 +5,11 @@ from typing import Tuple, List
 import pickle
 
 from langchain.docstore.document import Document
-from langchain.embeddings.openai import OpenAIEmbeddings
+# from langchain_community.embeddings import OpenAIEmbeddings
+from langchain_openai import OpenAIEmbeddings
+
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.vectorstores.faiss import FAISS
+from langchain_community.vectorstores import FAISS
 from pypdf import PdfReader
 import faiss
 

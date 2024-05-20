@@ -1,23 +1,25 @@
 # Import necessary libraries
 # import databutton as db
 import streamlit as st
-# new
-import openai
 
-
-from brain import get_index_for_pdf
-from langchain.chains import RetrievalQA
-from langchain.chat_models import ChatOpenAI
 import os
 
-# Set the title for the Streamlit app
-st.title("RAG enhanced Chatbot")
+from openai import OpenAI
+from brain import get_index_for_pdf
+from langchain.chains import RetrievalQA
+
+# import pkg_resources
+# openai_version = pkg_resources.get_distribution("openai").version
+# st.write(f"OpenAI version: {openai_version}")
 
 
 openai_api_key = st.text_input('Enter your OpenAI API key')
 os.environ["OPENAI_API_KEY"] =openai_api_key
-openai.api_key = os.getenv('OPENAI_API_KEY')
+client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
+
+# Set the title for the Streamlit app
+st.title("RAG enhanced Chatbot")
 
 
 # Cached function to create a vectordb for the provided PDF files
@@ -26,7 +28,7 @@ def create_vectordb(files, filenames):
     # Show a spinner while creating the vectordb
     with st.spinner("Vector database"):
         vectordb = get_index_for_pdf(
-            [file.getvalue() for file in files], filenames, openai.api_key
+            [file.getvalue() for file in files], filenames, os.environ["OPENAI_API_KEY"]
         )
     return vectordb
 
@@ -44,15 +46,15 @@ if pdf_files:
 #     You are a helpful Assistant who answers to users questions based on multiple contexts given to you.
 
 #     Keep your answer short and to the point.
-    
+
 #     The evidence are the context of the pdf extract with metadata. 
-    
+
 #     Carefully focus on the metadata specially 'filename' and 'page' whenever answering.
-    
+
 #     Make sure to add filename and page number at the end of sentence you are citing to.
-        
+
 #     Reply "Not applicable" if text is irrelevant.
-     
+
 #     The PDF content is:
 #     {pdf_extract}
 # """
@@ -118,10 +120,9 @@ if question:
     # Call ChatGPT with streaming and display the response as it comes
     response = []
     result = ""
-    for chunk in openai.ChatCompletion.create(
-        model="gpt-3.5-turbo", messages=prompt, stream=True
-    ):
-        text = chunk.choices[0].get("delta", {}).get("content")
+    for chunk in client.chat.completions.create(model="gpt-3.5-turbo", messages=prompt, stream=True):
+        text = chunk.choices[0].delta.content
+
         if text is not None:
             response.append(text)
             result = "".join(response).strip()
