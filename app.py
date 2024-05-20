@@ -41,23 +41,6 @@ if pdf_files:
     pdf_file_names = [file.name for file in pdf_files]
     st.session_state["vectordb"] = create_vectordb(pdf_files, pdf_file_names)
 
-# Define the template for the chatbot prompt
-# prompt_template = """
-#     You are a helpful Assistant who answers to users questions based on multiple contexts given to you.
-
-#     Keep your answer short and to the point.
-
-#     The evidence are the context of the pdf extract with metadata. 
-
-#     Carefully focus on the metadata specially 'filename' and 'page' whenever answering.
-
-#     Make sure to add filename and page number at the end of sentence you are citing to.
-
-#     Reply "Not applicable" if text is irrelevant.
-
-#     The PDF content is:
-#     {pdf_extract}
-# """
 
 prompt_template = """
     Vous êtes un assistant qui répond aux questions des utilisateurs sur la base de plusieurs contextes qui vous sont donnés.
