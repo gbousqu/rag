@@ -34,12 +34,12 @@ def create_vectordb(files, filenames):
 
 
 # Upload PDF files using Streamlit's file uploader
-pdf_files = st.file_uploader("", type="pdf", accept_multiple_files=True)
+doc_files = st.file_uploader("", type="pdf,txt,docx,doc", accept_multiple_files=True)
 
 # If PDF files are uploaded, create the vectordb and store it in the session state
-if pdf_files:
-    pdf_file_names = [file.name for file in pdf_files]
-    st.session_state["vectordb"] = create_vectordb(pdf_files, pdf_file_names)
+if doc_files:
+    doc_file_names = [file.name for file in doc_files]
+    st.session_state["vectordb"] = create_vectordb(doc_files, doc_file_names)
 
 
 prompt_template = """
