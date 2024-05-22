@@ -5,7 +5,7 @@ import streamlit as st
 import os
 
 from openai import OpenAI
-from brain import get_index_for_file
+from brain import get_index_for_files
 from langchain.chains import RetrievalQA
 
 # import pkg_resources
@@ -27,16 +27,16 @@ st.title("RAG enhanced Chatbot")
 def create_vectordb(files, filenames):
     # Show a spinner while creating the vectordb
     with st.spinner("Vector database"):
-        vectordb = get_index_for_file(
+        vectordb = get_index_for_files(
             [file.getvalue() for file in files], filenames, os.environ["OPENAI_API_KEY"]
         )
     return vectordb
 
 
-# Upload PDF files using Streamlit's file uploader
-doc_files = st.file_uploader("", type="pdf,txt,docx,doc", accept_multiple_files=True)
+# Upload PDF, TXT, DOCX, and DOC files using Streamlit's file uploader
+doc_files = st.file_uploader("", type=["pdf", "txt", "docx", "doc"], accept_multiple_files=True)
 
-# If PDF files are uploaded, create the vectordb and store it in the session state
+# If  files are uploaded, create the vectordb and store it in the session state
 if doc_files:
     doc_file_names = [file.name for file in doc_files]
     st.session_state["vectordb"] = create_vectordb(doc_files, doc_file_names)

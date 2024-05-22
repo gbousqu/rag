@@ -1,5 +1,6 @@
 # import databutton as db
 import re
+import io
 from io import BytesIO
 from typing import Tuple, List
 import pickle
@@ -11,23 +12,25 @@ from langchain_openai import OpenAIEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
 from pypdf import PdfReader
-from docx import Document
+from docx import Document as DocxDocument
 import textract
 
 # import faiss
+def parse_txt(file: BytesIO, filename: str) -> Tuple[List[str], str]:
+    text = file.read().decode('latin-1')
+    return [text], filename
 
-def parse_txt(file: BytesIO) -> Tuple[List[str], str]:
-    text = file.read().decode()
-    return [text], file.name
+def parse_docx(file: BytesIO, filename: str) -> Tuple[List[str], str]:
+    doc = DocxDocument(file)
+    output = []
+    for para in doc.paragraphs:
+        text = para.text
+        text = re.sub(r"(\w+)-\n(\w+)", r"\1\2", text)
+        text = re.sub(r"(?<!\n\s)\n(?!\s\n)", " ", text.strip())
+        text = re.sub(r"\n\s*\n", "\n\n", text)
+        output.append(text)
+    return output, filename
 
-def parse_docx(file: BytesIO) -> Tuple[List[str], str]:
-    doc = Document(file)
-    text = ' '.join([paragraph.text for paragraph in doc.paragraphs])
-    return [text], file.name
-
-def parse_doc(file: BytesIO) -> Tuple[List[str], str]:
-    text = textract.process(file)
-    return [text], file.name
 
 def parse_pdf(file: BytesIO, filename: str) -> Tuple[List[str], str]:
     pdf = PdfReader(file)
@@ -80,18 +83,21 @@ def docs_to_index(docs, openai_api_key):
 #     return index
 
 
-def get_index_for_file(file, openai_api_key):
-    if file.name.endswith('.pdf'):
-        text, filename = parse_pdf(BytesIO(file.read()), file.name)
-    elif file.name.endswith('.txt'):
-        text, filename = parse_txt(BytesIO(file.read()), file.name)
-    elif file.name.endswith('.docx'):
-        text, filename = parse_docx(BytesIO(file.read()), file.name)
-    elif file.name.endswith('.doc'):
-        text, filename = parse_doc(BytesIO(file.read()), file.name)
-    else:
-        raise ValueError(f"Unsupported file type: {file.name}")
+def get_index_for_files(files, file_names, openai_api_key):
+    documents = []
+    for file, file_name in zip(files, file_names):
+        if file.name.endswith('.pdf'):
+            text, filename = parse_pdf(BytesIO(file.read()), file_name)
+        elif file.name.endswith('.txt'):
+            text, filename = parse_txt(BytesIO(file.read()), file_name)
+        elif file.name.endswith('.docx'):
+            text, filename = parse_docx( BytesIO(file.getvalue()), file_name)
+        # elif file.name.endswith('.doc'):
+        #     text, filename = parse_doc(file, file_name)
+        else:
+            raise ValueError(f"Unsupported file type: {file.name}")
 
-    documents = text_to_docs(text, filename)
+        documents = documents + text_to_docs(text, filename)
+
     index = docs_to_index(documents, openai_api_key)
     return index
