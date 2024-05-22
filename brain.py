@@ -13,7 +13,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
 from pypdf import PdfReader
 from docx import Document as DocxDocument
-import textract
+# import textract
 
 # import faiss
 def parse_txt(file: BytesIO, filename: str) -> Tuple[List[str], str]:
@@ -24,11 +24,7 @@ def parse_docx(file: BytesIO, filename: str) -> Tuple[List[str], str]:
     doc = DocxDocument(file)
     output = []
     for para in doc.paragraphs:
-        text = para.text
-        text = re.sub(r"(\w+)-\n(\w+)", r"\1\2", text)
-        text = re.sub(r"(?<!\n\s)\n(?!\s\n)", " ", text.strip())
-        text = re.sub(r"\n\s*\n", "\n\n", text)
-        output.append(text)
+        output.append(para.text)
     return output, filename
 
 
@@ -86,12 +82,12 @@ def docs_to_index(docs, openai_api_key):
 def get_index_for_files(files, file_names, openai_api_key):
     documents = []
     for file, file_name in zip(files, file_names):
-        if file.name.endswith('.pdf'):
-            text, filename = parse_pdf(BytesIO(file.read()), file_name)
-        elif file.name.endswith('.txt'):
-            text, filename = parse_txt(BytesIO(file.read()), file_name)
-        elif file.name.endswith('.docx'):
-            text, filename = parse_docx( BytesIO(file.getvalue()), file_name)
+        if file_name.endswith('.pdf'):
+            text, filename = parse_pdf(BytesIO(file), file_name)
+        elif file_name.endswith('.txt'):
+            text, filename = parse_txt(BytesIO(file), file_name)
+        elif file_name.endswith('.docx'):
+            text, filename = parse_docx(BytesIO(file), file_name)
         # elif file.name.endswith('.doc'):
         #     text, filename = parse_doc(file, file_name)
         else:

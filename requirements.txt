@@ -6,4 +6,4 @@ tiktoken
 langchain-community
 langchain_openai
 python-docx
-textract
+# textract
