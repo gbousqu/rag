@@ -11,8 +11,23 @@ from langchain_openai import OpenAIEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
 from pypdf import PdfReader
+from docx import Document
+import textract
+
 # import faiss
 
+def parse_txt(file: BytesIO) -> Tuple[List[str], str]:
+    text = file.read().decode()
+    return [text], file.name
+
+def parse_docx(file: BytesIO) -> Tuple[List[str], str]:
+    doc = Document(file)
+    text = ' '.join([paragraph.text for paragraph in doc.paragraphs])
+    return [text], file.name
+
+def parse_doc(file: BytesIO) -> Tuple[List[str], str]:
+    text = textract.process(file)
+    return [text], file.name
 
 def parse_pdf(file: BytesIO, filename: str) -> Tuple[List[str], str]:
     pdf = PdfReader(file)
@@ -56,12 +71,27 @@ def docs_to_index(docs, openai_api_key):
     return index
 
 
-def get_index_for_pdf(pdf_files, pdf_names, openai_api_key):
-    documents = []
-    for pdf_file, pdf_name in zip(pdf_files, pdf_names):
-        text, filename = parse_pdf(BytesIO(pdf_file), pdf_name)
-        documents = documents + text_to_docs(text, filename)
+# def get_index_for_pdf(pdf_files, pdf_names, openai_api_key):
+#     documents = []
+#     for pdf_file, pdf_name in zip(pdf_files, pdf_names):
+#         text, filename = parse_pdf(BytesIO(pdf_file), pdf_name)
+#         documents = documents + text_to_docs(text, filename)
+#     index = docs_to_index(documents, openai_api_key)
+#     return index
+
+
+def get_index_for_file(file, openai_api_key):
+    if file.name.endswith('.pdf'):
+        text, filename = parse_pdf(BytesIO(file.read()), file.name)
+    elif file.name.endswith('.txt'):
+        text, filename = parse_txt(BytesIO(file.read()), file.name)
+    elif file.name.endswith('.docx'):
+        text, filename = parse_docx(BytesIO(file.read()), file.name)
+    elif file.name.endswith('.doc'):
+        text, filename = parse_doc(BytesIO(file.read()), file.name)
+    else:
+        raise ValueError(f"Unsupported file type: {file.name}")
+
+    documents = text_to_docs(text, filename)
     index = docs_to_index(documents, openai_api_key)
     return index
-
-

@@ -5,3 +5,5 @@ pypdf
 tiktoken
 langchain-community
 langchain_openai
+docx
+textract

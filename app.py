@@ -5,7 +5,7 @@ import streamlit as st
 import os
 
 from openai import OpenAI
-from brain import get_index_for_pdf
+from brain import get_index_for_file
 from langchain.chains import RetrievalQA
 
 # import pkg_resources
@@ -27,7 +27,7 @@ st.title("RAG enhanced Chatbot")
 def create_vectordb(files, filenames):
     # Show a spinner while creating the vectordb
     with st.spinner("Vector database"):
-        vectordb = get_index_for_pdf(
+        vectordb = get_index_for_file(
             [file.getvalue() for file in files], filenames, os.environ["OPENAI_API_KEY"]
         )
     return vectordb
